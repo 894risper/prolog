@@ -1,0 +1,153 @@
+% Define diseases and their types
+disease(corn_smut, fungal).
+disease(maize_rust, fungal).
+disease(northern_corn_leaf_blight, fungal).
+disease(south_corn_leaf_blight, fungal).
+disease(maize_stalk_rot, fungal).
+disease(gray_leaf_spot, fungal).
+disease(maize_wilt, fungal).
+disease(ear_rot, bacteria).
+disease(bacterial_Leaf_Streak, bacteria).
+disease(common_rust, fungal).
+disease(goss_bacterial_wilt, bacteria).
+disease(anthracnose, fungal).
+disease(fusarium_ear_rot, fungal).
+disease(charcoal_rot, fungal).
+disease(maize_dwarf_mosaic_virus, viral).
+disease(maize_streak_virus, viral).
+disease(maize_chlorotic_mottle_virus, viral).
+
+% Define symptoms associated with diseases
+symptom(corn_smut, black_galls_on_cobs).
+symptom(corn_smut, orange_pustules_on_leaves).
+symptom(corn_smut, powdery_spore_masses).
+symptom(corn_smut, reduced_yield).
+symptom(corn_smut, distorted_growth).
+symptom(corn_smut, swelling_on_corn_kernels).
+symptom(maize_rust, rusty_pustules).
+symptom(maize_rust, yellow_leaves).
+symptom(maize_rust, premature_leaf_fall).
+symptom(northern_corn_leaf_blight, lesion_on_leaves).
+symptom(northern_corn_leaf_blight, parallel_lesions).
+symptom(northern_corn_leaf_blight, lesion_expansion).
+symptom(northern_corn_leaf_blight, leaf_tissue_death).
+symptom(northern_corn_leaf_blight, reduced_yield).
+symptom(south_corn_leaf_blight, lesion_on_leaves).
+symptom(south_corn_leaf_blight, streaking_and_blighting).
+symptom(south_corn_leaf_blight, leaf_death).
+symptom(south_corn_leaf_blight, reduced_yield).
+symptom(maize_stalk_rot, stalk_discoloration).
+symptom(maize_stalk_rot, stalk_softening).
+symptom(maize_stalk_rot, hollow_stalks).
+symptom(maize_stalk_rot, reduced_standability).
+symptom(maize_stalk_rot, ear_rot).
+symptom(gray_leaf_spot, lesions_on_leaves).
+symptom(gray_leaf_spot, linear_arrangement).
+symptom(gray_leaf_spot, enlargement_of_lesions).
+symptom(gray_leaf_spot, reduced_photosynthesis).
+symptom(gray_leaf_spot, leaf_death).
+symptom(maize_wilt, wilting).
+symptom(maize_wilt, stunted_growth).
+symptom(maize_wilt, yellowing_of_leaves).
+symptom(ear_rot, mold_growth_on_corn_ears).
+symptom(ear_rot, discolored_kernels).
+symptom(ear_rot, reduced_kernel_quality).
+symptom(ear_rot, toxin_production).
+symptom(bacterial_leaf_streak, linear_lesions).
+symptom(bacterial_leaf_streak, parallel_lesions).
+symptom(bacterial_leaf_streak, yellowing_and_wilting).
+symptom(bacterial_leaf_streak, streaking_pattern).
+symptom(bacterial_leaf_streak, necrosis).
+symptom(common_rust, pustules_on_leaves).
+symptom(common_rust, leaf_yellowing).
+symptom(common_rust, reduced_kernel_quality).
+symptom(goss_bacterial_wilt, water_soaked_lesions_on_leaves).
+symptom(goss_bacterial_wilt, leaf_blighting).
+symptom(goss_bacterial_wilt, reduced_yield).
+symptom(goss_bacterial_wilt, stalk_lesion).
+symptom(anthracnose, leaf_blightening).
+symptom(anthracnose, elongated_stalks).
+symptom(anthracnose, lesions_on_kernels).
+symptom(anthracnose, reduced_yields).
+symptom(fusarium_ear_rot, pink_to_reddish_purple_mold).
+symptom(fusarium_ear_rot, kernel_discoloration).
+symptom(fusarium_ear_rot, mycotoxin_production).
+symptom(fusarium_ear_rot, shriveled_kernels).
+symptom(maize_dwarf_mosaic_virus, stunted_growth).
+symptom(maize_dwarf_mosaic_virus, chlorotic_mottling).
+symptom(maize_dwarf_mosaic_virus, necrosis).
+symptom(maize_dwarf_mosaic_virus, secondary_infection).
+symptom(maize_streak_virus, stunted_growth).
+symptom(maize_streak_virus, leaf_curling).
+symptom(maize_streak_virus, mosaic_pattern).
+symptom(maize_streak_virus, streak_on_stems).
+symptom(maize_streak_virus, yellowing_and_necrosis).
+symptom(maize_chlorotic_mottle_virus, leaf_curling).
+symptom(maize_chlorotic_mottle_virus, reduced_growth).
+symptom(maize_chlorotic_mottle_virus, mottling_and_chlorosis).
+
+% Define rules for disease types and associated symptoms
+has_symptom(Disease, Symptom) :- symptom(Disease, Symptom).
+
+% Identify diseases based on symptoms
+identify_diseases(Symptoms) :-
+    write('Possible diseases based on symptoms:'), nl,
+    findall(Disease, (disease(Disease, _), has_symptom(Disease, Symptom), member(Symptom, Symptoms)), Diseases),
+    list_to_set(Diseases, UniqueDiseases),
+    write_list(UniqueDiseases).
+
+% Get symptoms of a specific disease
+get_symptoms :-
+    write('Please enter the disease (or type "menu" to go back): '), read(Input),
+    (
+        Input = menu ->
+            true; % Do nothing, continue to next iteration
+        write('Symptoms of '), write(Input), write(':'), nl,
+        findall(Symptom, has_symptom(Input, Symptom), Symptoms),
+        write_list(Symptoms),
+        get_symptoms
+    ).
+
+% Identify the type of disease
+identify_disease_type(Disease) :-
+    disease(Disease, Type),
+    format('The disease ~w is of type ~w.~n', [Disease, Type]).
+
+% Helper predicate to write a list of items
+write_list([]) :- nl.
+write_list([H|T]) :- write('- '), write(H), nl, write_list(T).
+
+% Start the interactive system
+start :-
+    write('Welcome to the Maize Disease Information System!'), nl,
+    write('1. Identify diseases based on symptoms'), nl,
+    write('2. Get symptoms of a specific disease'), nl,
+    write('3. Identify the type of a disease'), nl,
+    write('4. Quit'), nl,
+    write('Please enter your choice (1-4): '), read(Choice),
+    handle_choice(Choice).
+
+% Handle user's choice
+handle_choice(1) :-
+    write('Please enter the symptoms (comma-separated): '), read(Symptoms),
+    identify_diseases(Symptoms),
+    start.
+
+handle_choice(2) :- get_symptoms, start.
+
+handle_choice(3) :-
+    write('Please enter the disease: '), read(Disease),
+    identify_disease_type(Disease),
+    start.
+
+handle_choice(4) :-
+    write('Thank you for using the system. Goodbye!'),
+    halt.
+
+handle_choice(_) :-
+    write('Invalid choice. Please enter a number between 1 and 4.'), nl,
+    start.
+
+% Run the system
+:- start.
+
